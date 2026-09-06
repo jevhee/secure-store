@@ -128,40 +128,7 @@ SecureStore uses the `SST1` envelope and `securestore` internal identifiers.
 
 Android Keystore keys are device-local. Host applications must define backup and device-transfer
 rules that exclude SecureStore storage; restoring ciphertext without its Keystore key makes the data
-unreadable. The sample application disables Android backup. Multi-process access is not supported.
-
-## Sample application
-
-The `:sample` module contains a runnable scenario dashboard. It covers primitive and binary
-round-trips, overwrite, missing entries, type mismatch, removal, namespace clearing and isolation,
-concurrent writes, key rotation with lazy migration, and invalid input.
-
-Run it from Android Studio or install it on a connected device:
-
-```shell
-./gradlew :sample:installDebug
-```
-
-## Build and verification
-
-The project uses Java 17 and Gradle Kotlin DSL.
-
-```shell
-./gradlew check lint
-```
-
-Publish a development snapshot to Maven Local:
-
-```shell
-./gradlew :secure-store:publishToMavenLocal
-```
-
-## Publishing from GitHub Actions
-
-The repository owner can open **Actions → Publish library → Run workflow**, enter a semantic
-version such as `0.1.0`, and start the workflow. It runs checks and lint before publishing
-`io.github.jevhee:secure-store:<version>` to GitHub Packages. Authentication uses the workflow's
-short-lived `GITHUB_TOKEN`; no publishing token needs to be stored as a repository secret.
+unreadable. Multi-process access is not supported.
 
 ## License
 
