@@ -1,5 +1,7 @@
 # SecureStore
 
+![SecureStore — Encrypted key-value storage for Android](docs/images/secure-store-banner.png)
+
 SecureStore is a Kotlin-first encrypted key-value library for Android. It automatically serializes,
 encrypts, stores, decrypts, and decodes small values through a coroutine-friendly API.
 
