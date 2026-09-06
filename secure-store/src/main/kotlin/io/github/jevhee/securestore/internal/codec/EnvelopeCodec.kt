@@ -8,7 +8,8 @@ import java.nio.ByteOrder
 internal object EnvelopeCodec {
     /** Maximum supported plaintext size before encryption. */
     const val MAX_VALUE_BYTES: Int = 1024 * 1024
-    private val magic = byteArrayOf('S'.code.toByte(), 'S'.code.toByte(), 'T'.code.toByte(), '1'.code.toByte())
+    private val magic =
+        byteArrayOf('S'.code.toByte(), 'S'.code.toByte(), 'T'.code.toByte(), '1'.code.toByte())
     private const val FORMAT_VERSION: Byte = 1
     private const val AES_256_GCM: Byte = 1
     private const val HEADER_SIZE = 16

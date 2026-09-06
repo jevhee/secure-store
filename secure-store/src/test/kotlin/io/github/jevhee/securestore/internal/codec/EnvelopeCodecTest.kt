@@ -6,7 +6,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EnvelopeCodecTest {
-    @Test fun `envelope round trips`() {
+    @Test
+    fun `envelope round trips`() {
         val original = Envelope(
             keyVersion = 7,
             type = ValueType.BytesValue,
@@ -14,7 +15,8 @@ class EnvelopeCodecTest {
             ciphertext = ByteArray(32) { (it * 3).toByte() },
         )
 
-        val decoded = EnvelopeCodec.decode(EnvelopeCodec.encode(original)) as EnvelopeDecodeResult.Success
+        val decoded =
+            EnvelopeCodec.decode(EnvelopeCodec.encode(original)) as EnvelopeDecodeResult.Success
 
         assertEquals(original.keyVersion, decoded.envelope.keyVersion)
         assertEquals(original.type, decoded.envelope.type)
@@ -22,7 +24,8 @@ class EnvelopeCodecTest {
         assertArrayEquals(original.ciphertext, decoded.envelope.ciphertext)
     }
 
-    @Test fun `encoded envelope uses SecureStore magic`() {
+    @Test
+    fun `encoded envelope uses SecureStore magic`() {
         val encoded = EnvelopeCodec.encode(
             Envelope(1, ValueType.StringValue, ByteArray(12), ByteArray(16)),
         )
@@ -30,7 +33,8 @@ class EnvelopeCodecTest {
         assertArrayEquals("SST1".toByteArray(Charsets.US_ASCII), encoded.copyOfRange(0, 4))
     }
 
-    @Test fun `truncated envelope is rejected`() {
+    @Test
+    fun `truncated envelope is rejected`() {
         val encoded = EnvelopeCodec.encode(
             Envelope(1, ValueType.StringValue, ByteArray(12), ByteArray(16)),
         )
@@ -38,7 +42,8 @@ class EnvelopeCodecTest {
         assertTrue(EnvelopeCodec.decode(encoded.copyOf(encoded.size - 1)) is EnvelopeDecodeResult.Malformed)
     }
 
-    @Test fun `trailing bytes are rejected`() {
+    @Test
+    fun `trailing bytes are rejected`() {
         val encoded = EnvelopeCodec.encode(
             Envelope(1, ValueType.StringValue, ByteArray(12), ByteArray(16)),
         )
@@ -46,7 +51,8 @@ class EnvelopeCodecTest {
         assertTrue(EnvelopeCodec.decode(encoded + 0) is EnvelopeDecodeResult.Malformed)
     }
 
-    @Test fun `unknown format is rejected distinctly`() {
+    @Test
+    fun `unknown format is rejected distinctly`() {
         val encoded = EnvelopeCodec.encode(
             Envelope(1, ValueType.StringValue, ByteArray(12), ByteArray(16)),
         )

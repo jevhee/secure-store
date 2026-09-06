@@ -2,9 +2,9 @@ package io.github.jevhee.securestore.sample
 
 import android.content.Context
 import io.github.jevhee.securestore.SecureStore
+import io.github.jevhee.securestore.SecureStoreClient
 import io.github.jevhee.securestore.SecureStoreError
 import io.github.jevhee.securestore.SecureStoreResult
-import io.github.jevhee.securestore.SecureStoreClient
 
 internal class ScenarioContext(private val applicationContext: Context) {
     fun newStore(label: String): SecureStoreClient = SecureStore.open(

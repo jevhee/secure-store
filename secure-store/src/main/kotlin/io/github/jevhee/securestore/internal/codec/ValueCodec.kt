@@ -48,7 +48,8 @@ internal object ValueCodec {
     }
 
     /** Allocates a big-endian buffer with the requested [size]. */
-    private fun buffer(size: Int): ByteBuffer = ByteBuffer.allocate(size).order(ByteOrder.BIG_ENDIAN)
+    private fun buffer(size: Int): ByteBuffer =
+        ByteBuffer.allocate(size).order(ByteOrder.BIG_ENDIAN)
 
     /** Wraps [bytes] as big-endian after enforcing the exact expected [size]. */
     private fun exactBuffer(bytes: ByteArray, size: Int): ByteBuffer {

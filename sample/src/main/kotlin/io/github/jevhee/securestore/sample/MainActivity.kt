@@ -11,8 +11,6 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import java.text.DateFormat
-import java.util.Date
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +18,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.text.DateFormat
+import java.util.Date
 
 internal class MainActivity : Activity() {
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -73,7 +73,10 @@ internal class MainActivity : Activity() {
                 logView.text = ""
             }
         }
-        actions.addView(runAllButton, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        actions.addView(
+            runAllButton,
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        )
         actions.addView(clearLogButton)
         root.addView(actions)
 

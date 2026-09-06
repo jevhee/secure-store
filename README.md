@@ -124,9 +124,7 @@ SecureStore protects data at rest written by this library. It does not protect p
 application memory, an application process under attacker control, or a compromised device.
 Secure physical deletion on flash storage cannot be guaranteed.
 
-SecureStore uses the `SST1` envelope and `securestore` internal identifiers. Data written by
-pre-release builds under the former `secure-kv` identity is incompatible and is not migrated
-automatically.
+SecureStore uses the `SST1` envelope and `securestore` internal identifiers.
 
 Android Keystore keys are device-local. Host applications must define backup and device-transfer
 rules that exclude SecureStore storage; restoring ciphertext without its Keystore key makes the data

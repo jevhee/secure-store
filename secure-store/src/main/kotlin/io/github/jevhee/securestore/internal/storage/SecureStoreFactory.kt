@@ -2,17 +2,17 @@ package io.github.jevhee.securestore.internal.storage
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import io.github.jevhee.securestore.SecureStoreConfig
 import io.github.jevhee.securestore.SecureStoreClient
+import io.github.jevhee.securestore.SecureStoreConfig
 import io.github.jevhee.securestore.internal.crypto.AndroidKeyManager
 import io.github.jevhee.securestore.internal.validation.InputValidator
-import java.security.MessageDigest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import java.security.MessageDigest
 
 /** Maintains one coordinated DataStore-backed client per application namespace and process. */
 internal object SecureStoreFactory {

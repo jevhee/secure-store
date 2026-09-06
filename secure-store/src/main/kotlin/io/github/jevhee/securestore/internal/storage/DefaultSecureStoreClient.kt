@@ -12,10 +12,10 @@ import io.github.jevhee.securestore.IdentifierProtection
 import io.github.jevhee.securestore.KeyRotationReport
 import io.github.jevhee.securestore.MigrationPolicy
 import io.github.jevhee.securestore.MigrationReport
+import io.github.jevhee.securestore.SecureStoreClient
 import io.github.jevhee.securestore.SecureStoreConfig
 import io.github.jevhee.securestore.SecureStoreError
 import io.github.jevhee.securestore.SecureStoreResult
-import io.github.jevhee.securestore.SecureStoreClient
 import io.github.jevhee.securestore.internal.codec.Envelope
 import io.github.jevhee.securestore.internal.codec.EnvelopeCodec
 import io.github.jevhee.securestore.internal.codec.EnvelopeDecodeResult
@@ -27,13 +27,13 @@ import io.github.jevhee.securestore.internal.crypto.AndroidKeyManager
 import io.github.jevhee.securestore.internal.crypto.EncryptedValue
 import io.github.jevhee.securestore.internal.crypto.KeyInvalidatedException
 import io.github.jevhee.securestore.internal.validation.InputValidator
-import java.io.IOException
-import java.security.GeneralSecurityException
-import javax.crypto.AEADBadTagException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.IOException
+import java.security.GeneralSecurityException
+import javax.crypto.AEADBadTagException
 
 /**
  * Default namespace-scoped implementation coordinating validation, encryption, and DataStore I/O.
@@ -229,9 +229,13 @@ internal class DefaultSecureStoreClient(
             }
             val envelope = when (val result = EnvelopeCodec.decode(envelopeBytes)) {
                 is EnvelopeDecodeResult.Success -> result.envelope
-                EnvelopeDecodeResult.Malformed -> throw SecureStoreOperationException(SecureStoreError.CorruptedData)
+                EnvelopeDecodeResult.Malformed -> throw SecureStoreOperationException(
+                    SecureStoreError.CorruptedData
+                )
+
                 EnvelopeDecodeResult.UnsupportedFormat ->
                     throw SecureStoreOperationException(SecureStoreError.UnsupportedFormat)
+
                 EnvelopeDecodeResult.UnsupportedCipherSuite ->
                     throw SecureStoreOperationException(SecureStoreError.UnsupportedCipherSuite)
             }
@@ -274,8 +278,9 @@ internal class DefaultSecureStoreClient(
         } catch (_: IllegalArgumentException) {
             return MigrationOutcome.Failed
         }
-        val envelope = (EnvelopeCodec.decode(envelopeBytes) as? EnvelopeDecodeResult.Success)?.envelope
-            ?: return MigrationOutcome.Failed
+        val envelope =
+            (EnvelopeCodec.decode(envelopeBytes) as? EnvelopeDecodeResult.Success)?.envelope
+                ?: return MigrationOutcome.Failed
         val currentVersion = activeKeyVersion()
         if (envelope.keyVersion == currentVersion) return MigrationOutcome.Skipped
         val oldKey = keyManager.getValueKey(envelope.keyVersion) ?: return MigrationOutcome.Failed
@@ -317,6 +322,7 @@ internal class DefaultSecureStoreClient(
                     Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP,
                 )
             }
+
             IdentifierProtection.Plain -> logicalKey
         }
         return stringPreferencesKey(ENTRY_PREFIX + suffix)
@@ -359,7 +365,11 @@ internal class DefaultSecureStoreClient(
     } catch (_: IOException) {
         SecureStoreResult.Failure(SecureStoreError.StorageUnavailable)
     } catch (exception: IllegalArgumentException) {
-        SecureStoreResult.Failure(SecureStoreError.InvalidInput(exception.message ?: "Invalid input."))
+        SecureStoreResult.Failure(
+            SecureStoreError.InvalidInput(
+                exception.message ?: "Invalid input."
+            )
+        )
     } catch (_: GeneralSecurityException) {
         SecureStoreResult.Failure(SecureStoreError.Unknown)
     } catch (_: IllegalStateException) {
@@ -369,6 +379,7 @@ internal class DefaultSecureStoreClient(
     private companion object {
         const val ENTRY_PREFIX = "entry."
         const val INITIAL_KEY_VERSION = 1
-        val ACTIVE_KEY_VERSION: Preferences.Key<Int> = intPreferencesKey("__securestore_active_value_key_version")
+        val ACTIVE_KEY_VERSION: Preferences.Key<Int> =
+            intPreferencesKey("__securestore_active_value_key_version")
     }
 }

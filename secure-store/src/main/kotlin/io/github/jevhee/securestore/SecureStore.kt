@@ -1,6 +1,7 @@
 package io.github.jevhee.securestore
 
 import android.content.Context
+import io.github.jevhee.securestore.SecureStore.open
 import io.github.jevhee.securestore.internal.storage.SecureStoreFactory
 
 /** Entry point for opening encrypted key-value stores. */

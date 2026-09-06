@@ -1,16 +1,17 @@
 package io.github.jevhee.securestore.internal.crypto
 
-import javax.crypto.AEADBadTagException
-import javax.crypto.KeyGenerator
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
+import javax.crypto.AEADBadTagException
+import javax.crypto.KeyGenerator
 
 class AesGcmCryptoEngineTest {
     private val key = KeyGenerator.getInstance("AES").apply { init(256) }.generateKey()
     private val engine = AesGcmCryptoEngine()
 
-    @Test fun `encrypt and decrypt round trip`() {
+    @Test
+    fun `encrypt and decrypt round trip`() {
         val plaintext = "classified".toByteArray()
         val aad = "context".toByteArray()
 

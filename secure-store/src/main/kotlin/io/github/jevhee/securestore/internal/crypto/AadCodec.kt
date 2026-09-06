@@ -11,7 +11,12 @@ internal object AadCodec {
      *
      * @return Versioned associated data that is authenticated but not encrypted.
      */
-    fun encode(packageName: String, namespace: String, logicalKey: String, type: ValueType): ByteArray {
+    fun encode(
+        packageName: String,
+        namespace: String,
+        logicalKey: String,
+        type: ValueType
+    ): ByteArray {
         val output = ByteArrayOutputStream()
         DataOutputStream(output).use { data ->
             data.writeField("securestore".toByteArray(Charsets.UTF_8))

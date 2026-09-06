@@ -5,7 +5,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ValueCodecTest {
-    @Test fun `primitive values round trip`() {
+    @Test
+    fun `primitive values round trip`() {
         assertEquals("hello", ValueCodec.decodeString(ValueCodec.encode("hello")))
         assertEquals(Int.MIN_VALUE, ValueCodec.decodeInt(ValueCodec.encode(Int.MIN_VALUE)))
         assertEquals(Long.MAX_VALUE, ValueCodec.decodeLong(ValueCodec.encode(Long.MAX_VALUE)))

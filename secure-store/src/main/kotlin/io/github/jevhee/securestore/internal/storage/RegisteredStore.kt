@@ -1,7 +1,7 @@
 package io.github.jevhee.securestore.internal.storage
 
-import io.github.jevhee.securestore.SecureStoreConfig
 import io.github.jevhee.securestore.SecureStoreClient
+import io.github.jevhee.securestore.SecureStoreConfig
 
 /** Process registry value pairing a namespace configuration with its shared client. */
 internal data class RegisteredStore(
