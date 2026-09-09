@@ -21,45 +21,44 @@ security-critical data. The current minimum Android version is API 23.
 
 ## Installation
 
-Packages published by this repository use:
+### Requirements
 
-```text
-io.github.jevhee:secure-store:<version>
-```
+- Android API 23 (Android 6.0) or newer
+- Kotlin with coroutine support
+- Java 17 toolchain when building the library from source
 
-Add GitHub Packages to the consuming project's `settings.gradle.kts`. GitHub Packages requires
-credentials for package downloads; use Gradle properties or environment variables and do not
-commit a personal access token.
+SecureStore is built by [JitPack](https://jitpack.io/) from this repository, so maintainers do not
+need to upload artifacts to GitHub Packages. Add JitPack to the consuming project's
+`settings.gradle.kts`:
 
 ```kotlin
 dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url = uri("https://maven.pkg.github.com/jevhee/secure-store")
-            credentials {
-                username = providers.gradleProperty("gpr.user")
-                    .orElse(providers.environmentVariable("GITHUB_ACTOR"))
-                    .orNull
-                password = providers.gradleProperty("gpr.key")
-                    .orElse(providers.environmentVariable("GITHUB_TOKEN"))
-                    .orNull
-            }
-        }
+        maven(url = "https://jitpack.io")
     }
 }
 ```
 
-Then add the library dependency:
+Then add the library dependency. Replace `<version>` with a Git tag, commit hash, or branch
+snapshot. JitPack builds the selected revision on demand; no credentials are required.
 
 ```kotlin
 dependencies {
-    implementation("io.github.jevhee:secure-store:<version>")
+    implementation("com.github.jevhee:secure-store:<version>")
 }
 ```
 
-## Quick start
+The [JitPack build page](https://jitpack.io/#jevhee/secure-store) shows the available versions and
+the exact dependency coordinate for each revision.
+
+## Usage
+
+All SecureStore operations that access data are `suspend` functions. Open a store once for a
+stable namespace, then use it from a coroutine such as a ViewModel's `viewModelScope`.
+
+### Open a store
 
 ```kotlin
 import io.github.jevhee.securestore.SecureStore
@@ -69,6 +68,15 @@ val secureStore = SecureStore.open(
     context = applicationContext,
     namespace = "authentication",
 )
+```
+
+The namespace separates data within the same application. It must be stable: changing it creates
+a different store. Omit `namespace` to use `SecureStore.DEFAULT_NAMESPACE` (`"default"`).
+
+### Write and read a value
+
+```kotlin
+import io.github.jevhee.securestore.SecureStoreResult
 
 when (val result = secureStore.put("access_token", token)) {
     is SecureStoreResult.Success -> Unit
@@ -81,13 +89,55 @@ val storedToken: String? = when (val result = secureStore.getString("access_toke
 }
 ```
 
-All storage operations are `suspend` functions and must run in a coroutine. `Success(null)`
-means the entry does not exist. Decryption, integrity, type, key, and storage problems return
-`SecureStoreResult.Failure`.
+`Success(null)` means the entry does not exist. A read with a getter that does not match the
+stored type returns `Failure(TypeMismatch)` rather than converting the value.
+
+### Supported values and entry management
 
 Supported values are `String`, `Int`, `Long`, `Float`, `Double`, `Boolean`, and
-`ByteArray`. Use `contains`, `remove`, and `clear` to manage entries. Values are limited to
-1 MiB before encryption, and logical keys are limited to 256 UTF-8 bytes.
+`ByteArray`. Use the matching getter for each value; binary values use `getBytes`.
+
+```kotlin
+when (val exists = secureStore.contains("access_token")) {
+    is SecureStoreResult.Success -> if (exists.value) {
+        secureStore.remove("access_token")
+    }
+    is SecureStoreResult.Failure -> handleSecureStorageFailure(exists.error)
+}
+
+// Removes every application value in the namespace, while retaining internal key metadata.
+when (val result = secureStore.clear()) {
+    is SecureStoreResult.Success -> Unit
+    is SecureStoreResult.Failure -> handleSecureStorageFailure(result.error)
+}
+```
+
+`remove` and `clear` remove entries from the store, but do not guarantee physical erasure from
+flash storage. Values are limited to 1 MiB before encryption, and logical keys are limited to
+256 UTF-8 bytes.
+
+### Handle failures explicitly
+
+Every operation returns `SecureStoreResult`, keeping storage and cryptographic failures visible to
+the caller. Decide the recovery behavior appropriate for the data being protected:
+
+```kotlin
+when (val result = secureStore.getString("access_token")) {
+    is SecureStoreResult.Success -> useToken(result.value)
+    is SecureStoreResult.Failure -> when (result.error) {
+        SecureStoreError.AuthenticationRequired -> promptForDeviceAuthentication()
+        SecureStoreError.KeyInvalidated,
+        SecureStoreError.KeyNotFound -> signOutAndRequireSignIn()
+        SecureStoreError.CorruptedData,
+        SecureStoreError.IntegrityCheckFailed -> discardAffectedSession()
+        else -> showRecoverableStorageError()
+    }
+}
+```
+
+Import `io.github.jevhee.securestore.SecureStoreError` for the error categories above. Never
+silently treat every failure as a missing value: loss of a Keystore key and unauthenticated or
+corrupt data may require a different recovery path.
 
 ## Configuration
 
@@ -117,6 +167,21 @@ Rotate the active value-encryption key with `rotateKey()`. With lazy migration, 
 by an older key are rewritten only after a successful read. Explicit `migrate()` is available for
 plain identifiers; obfuscated identifiers cannot currently be enumerated back to their logical
 keys and are reported as skipped.
+
+```kotlin
+when (val rotation = secureStore.rotateKey()) {
+    is SecureStoreResult.Success -> logKeyVersion(rotation.value.activeVersion)
+    is SecureStoreResult.Failure -> handleSecureStorageFailure(rotation.error)
+}
+
+when (val migration = secureStore.migrate()) {
+    is SecureStoreResult.Success -> logMigration(migration.value)
+    is SecureStoreResult.Failure -> handleSecureStorageFailure(migration.error)
+}
+```
+
+Keep a namespace's configuration consistent. Reopening the same namespace with a different
+configuration in the same application process throws `IllegalArgumentException`.
 
 ## Security boundary
 
