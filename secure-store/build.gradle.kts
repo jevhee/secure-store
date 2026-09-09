@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    `maven-publish`
+    id("securestore.publish")
 }
 
 kotlin {
@@ -36,22 +36,6 @@ android {
         singleVariant("release") {
             withSourcesJar()
             withJavadocJar()
-        }
-    }
-}
-
-publishing {
-    publications {
-        register<MavenPublication>("release") {
-            groupId = "com.github.jevhee"
-            artifactId = "secure-store"
-            version = providers.gradleProperty("VERSION_NAME")
-                .orElse("0.1.0-SNAPSHOT")
-                .get()
-
-            afterEvaluate {
-                from(components["release"])
-            }
         }
     }
 }
