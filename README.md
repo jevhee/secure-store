@@ -53,6 +53,13 @@ dependencies {
 The [JitPack build page](https://jitpack.io/#jevhee/secure-store) shows the available versions and
 the exact dependency coordinate for each revision.
 
+### Create a release
+
+Maintainers can run the **Release library** workflow from the repository's Actions tab and supply
+a semantic version such as `0.1.0`. The workflow verifies `main`, creates the `v0.1.0` Git tag and
+GitHub Release, and JitPack builds that tag automatically when consumers request it. No artifact
+upload or GitHub Packages credentials are needed.
+
 ## Usage
 
 All SecureStore operations that access data are `suspend` functions. Open a store once for a
